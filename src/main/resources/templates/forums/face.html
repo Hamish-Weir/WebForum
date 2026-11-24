@@ -1,0 +1,154 @@
+<div id="face-widget">
+<div class="fw-head">
+    <div class="fw-eye fw-eye-left">
+    <div class="fw-eyelid"></div>
+    <div class="fw-pupil"></div>
+    </div>
+    <div class="fw-eye fw-eye-right">
+    <div class="fw-eyelid"></div>
+    <div class="fw-pupil"></div>
+    </div>
+    <div class="fw-mouth"></div>
+</div>
+</div>
+
+<style>
+/* ── Isolated face widget ── scoped with #face-widget prefix to avoid conflicts */
+
+#face-widget {
+--fw-size: 120px;
+--fw-head-color: #f5c542;
+--fw-eye-color: #ffffff;
+--fw-pupil-color: #222222;
+--fw-mouth-color: #c0392b;
+--fw-eyelid-color: var(--fw-head-color);
+--fw-follow-range: 12px;
+
+position: relative;
+width: var(--fw-size);
+height: var(--fw-size);
+margin: 40px auto;
+user-select: none;
+pointer-events: none;
+}
+
+#face-widget .fw-head {
+width: 100%;
+height: 100%;
+background: var(--fw-head-color);
+border-radius: 50%;
+position: relative;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#face-widget .fw-eye {
+width: 28%;
+height: 30%;
+background: var(--fw-eye-color);
+border-radius: 50%;
+position: absolute;
+top: 28%;
+overflow: hidden; /* clips the eyelid so it looks like a real lid */
+}
+
+#face-widget .fw-eye-left { left: 20%; }
+#face-widget .fw-eye-right { right: 20%; }
+
+#face-widget .fw-pupil {
+width: 40%;
+height: 40%;
+background: var(--fw-pupil-color);
+border-radius: 50%;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+transition: transform 0.08s ease-out;
+}
+
+/* ── Blinking eyelids ── */
+#face-widget .fw-eyelid {
+position: absolute;
+inset: 0;
+background: var(--fw-eyelid-color);
+transform: translateY(-105%); /* hidden above the eye by default */
+z-index: 2; /* sits on top of the pupil */
+}
+
+/* The 'blink' class is toggled on by JS for ~150ms */
+#face-widget.blinking .fw-eyelid {
+animation: fw-blink 0.16s ease-in-out;
+}
+
+@keyframes fw-blink {
+0%   { transform: translateY(-105%); }
+45%  { transform: translateY(0); }     /* eye closed */
+55%  { transform: translateY(0); }
+100% { transform: translateY(-105%); } /* eye open again */
+}
+
+#face-widget .fw-mouth {
+width: 35%;
+height: 15%;
+background: var(--fw-mouth-color);
+border-radius: 0 0 50% 50%;
+position: absolute;
+bottom: 22%;
+left: 50%;
+transform: translateX(-50%);
+}
+
+/* Respect users who prefer no motion */
+@media (prefers-reduced-motion: reduce) {
+#face-widget.blinking .fw-eyelid { animation: none; }
+}
+</style>
+
+<script>
+(function () {
+const widget = document.getElementById('face-widget');
+if (!widget) return;
+
+const range = parseFloat(getComputedStyle(widget).getPropertyValue('--fw-follow-range'));
+
+/* ── Eye tracking ── */
+document.addEventListener('mousemove', function (e) {
+    widget.querySelectorAll('.fw-eye').forEach(function (eye) {
+    const rect = eye.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    const angle = Math.atan2(dy, dx);
+    const dist = Math.min(Math.hypot(dx, dy) / 10, range);
+
+    const pupil = eye.querySelector('.fw-pupil');
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+
+    pupil.style.transform =
+        'translate(calc(-50% + ' + tx + 'px), calc(-50% + ' + ty + 'px))';
+    });
+});
+
+/* ── Randomized blinking ── */
+function scheduleBlink() {
+    // blink every 10–20 seconds
+    const delay = 10000 + Math.random() * 10000;
+
+    setTimeout(function () {
+    widget.classList.add('blinking');
+
+    // remove the class once the animation finishes so it can replay
+    setTimeout(function () {
+        widget.classList.remove('blinking');
+    }, 200);
+
+    scheduleBlink();
+    }, delay);
+}
+
+scheduleBlink();
+})();
+</script>

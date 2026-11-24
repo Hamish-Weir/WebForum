@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Board</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <!-- Banner -->
+    <div class="banner">
+        <img th:src="@{/images/logo.png}" alt="Site Logo" style="height: 100; display: block;">
+    </div>
+
+    <!-- Main nav -->
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="/forums" class="nav-link">Forums</a>
+            <a href="#" class="nav-link">Users</a>
+            <a href="#" class="nav-link">Search</a>
+        </div>
+
+        <div class="top-bar-inner">
+            <span class="top-bar-right">
+                <a href="#">Login</a>
+                <span class="top-bar-sep">|</span>
+                <a href="#">Register</a>
+                <span class="top-bar-sep">|</span>
+                <a href="#">Search</a>
+            </span>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="/forums">Forums</a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current" th:text="${forumName}">Forum Name</span>
+    </div>
+
+    <!-- Thread description -->
+    <div class="forum-description">
+        <h1 th:text="${threadName}">Forum Name</h1>
+        <p th:text="${threadDescription}">Forum Description</p>
+    </div>
+
+    <!-- Comment list -->
+    <div class="thread-list">
+
+        <!-- Thread header -->
+        <div class="thread-list-header">
+            <div class="col-icon"></div>
+            <div class="col-title">Thread</div>
+            <div class="col-replies">Likes</div>
+            <!-- <div class="col-views">Views</div> -->
+
+        </div>
+
+        <!-- Comments -->
+        <div th:each="c : ${comments}"
+           class="thread-row">
+            <div class="row-title">
+                <div class="row-title-text" th:text="${c.comment.title}">Thread Title</div>
+                <div class="row-starter">
+                    <img class="starter-avatar" th:src="${c.avatarUrl}" alt="Avatar"/>
+                    <span class="starter-name" th:text="${c.comment.user.username}">Author</span>
+                </div>
+            </div>
+            <div class="row-replies" th:text="${c.likes}">0</div>
+        </div>
+
+        <!-- Empty state -->
+        <div th:if="${#lists.isEmpty(page.content)}" class="thread-empty">
+            No threads in this forum yet.
+        </div>
+
+    </div>
+
+
+</body>
+</html>

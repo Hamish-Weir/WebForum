@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Board</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <!-- Banner -->
+    <div class="banner">
+        <img th:src="@{/images/logo.png}" alt="Site Logo" style="height: 100; display: block;">
+    </div>
+
+    <!-- Main nav -->
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="/forums" class="nav-link">Forums</a>
+            <a href="#" class="nav-link">Users</a>
+            <a href="#" class="nav-link">Search</a>
+        </div>
+
+        <div class="top-bar-inner">
+            <span class="top-bar-right">
+                <a href="#">Login</a>
+                <span class="top-bar-sep">|</span>
+                <a href="#">Register</a>
+                <span class="top-bar-sep">|</span>
+                <a href="#">Search</a>
+            </span>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="/forums">Forums</a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current" th:text="${forumName}">Forum Name</span>
+    </div>
+
+    <!-- Forum description -->
+    <div class="forum-description">
+        <h1 th:text="${pageName}">Forum Name</h1>
+        <p th:text="${pageDescription}">Forum Description</p>
+    </div>
+
+    <!-- Thread list -->
+    <div class="thread-list">
+
+        <!-- Thread header -->
+        <div class="thread-list-header">
+            <div class="col-title">Forum</div>
+            <div class="col-replies">Replies</div>
+            <!-- <div class="col-views">Views</div> -->
+            <div class="col-last">Last Post</div>
+        </div>
+
+        <!-- Threads -->
+        <a th:each="f : ${forums}"
+           th:href="@{/forums/forum/{id}(id=${f.forum.id})}"
+           class="thread-row">
+            <div class="row-title">
+                <div class="row-title-text" th:text="${f.forum.title}">Thread Title</div>
+            </div>
+            <div class="row-replies" th:text="${f.forum.postCount}">0</div>
+            <div class="row-last">
+                <!-- <div class="last-date" th:text="${#temporals.format(f.forum.lastPostDate, 'dd MMM yyyy')}">Date</div>
+                <div class="last-starter">
+                    <img class="starter-avatar" th:src="${f.lastPosterAvatarUrl}" alt="Avatar"/>
+                    <span class="last-author" th:text="${f.forum.lastPoster.username}">Name</span>
+                </div> -->
+
+                <div class="last-starter">
+                    <th:block th:if="${f.forum.lastPoster != null}">
+                        <img class="starter-avatar" th:src="${f.avatarUrl}" alt="Avatar"/>
+                        <span class="last-author" th:text="${f.forum.lastPoster.username}">Name</span>
+                    </th:block>
+                    <span th:if="${f.forum.lastPoster == null}" class="last-author muted">—</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Empty state -->
+        <div th:if="${#lists.isEmpty(page.content)}" class="thread-empty">
+            No threads in this forum yet.
+        </div>
+
+    </div>
+
+
+</body>
+</html>
